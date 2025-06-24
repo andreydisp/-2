@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор - ЛР2 (исправленный)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #1a1a2e;
+            color: #e6e6e6;
+            transition: background-color 0.3s;
+        }
+
+        .calculator {
+            background-color: #16213e;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            width: 300px;
+        }
+
+        .display {
+            width: 100%;
+            height: 70px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #0f3460;
+            border-radius: 10px;
+            text-align: right;
+            color: #ffffff;
+            font-size: 2rem;
+            font-weight: 300;
+            border: none;
+            outline: none;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .btn {
+            width: 100%;
+            height: 60px;
+            border-radius: 10px;
+            border: none;
+            font-size: 1.3rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-number {
+            background-color: #0f3460;
+        }
+
+        .btn-number:hover {
+            background-color: #1a4b8c;
+        }
+
+        .btn-operator {
+            background-color: #e94560;
+        }
+
+        .btn-operator:hover {
+            background-color: #ff5c77;
+        }
+
+        .btn-equals {
+            background-color: #00b894;
+        }
+
+        .btn-equals:hover {
+            background-color: #00d3a9;
+        }
+
+        .btn-clear {
+            background-color: #6c5ce7;
+        }
+
+        .btn-clear:hover {
+            background-color: #7d6df0;
+        }
+
+        .btn-special {
+            background-color: #a6a6a6;
+        }
+
+        .btn-special:hover {
+            background-color: #c2c2c2;
+        }
+
+        .span-2 {
+            grid-column: span 2;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #a1a1a1;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <input type="text" class="display" id="display" value="0" readonly>
+        
+        <div class="buttons">
+            <button class="btn btn-clear" id="btn_clear">C</button>
+            <button class="btn btn-special" id="btn_backspace">⌫</button>
+            <button class="btn btn-special" id="btn_sign">±</button>
+            <button class="btn btn-special" id="btn_percent">%</button>
+            <button class="btn btn-operator" id="btn_sqrt">√</button>
+            
+            <button class="btn btn-number" id="btn_7">7</button>
+            <button class="btn btn-number" id="btn_8">8</button>
+            <button class="btn btn-number" id="btn_9">9</button>
+            <button class="btn btn-operator" id="btn_divide">/</button>
+            <button class="btn btn-operator" id="btn_factorial">x!</button>
+            
+            <button class="btn btn-number" id="btn_4">4</button>
+            <button class="btn btn-number" id="btn_5">5</button>
+            <button class="btn btn-number" id="btn_6">6</button>
+            <button class="btn btn-operator" id="btn_multiply">×</button>
+            <button class="btn btn-operator" id="btn_square">x²</button>
+            
+            <button class="btn btn-number" id="btn_1">1</button>
+            <button class="btn btn-number" id="btn_2">2</button>
+            <button class="btn btn-number" id="btn_3">3</button>
+            <button class="btn btn-operator" id="btn_subtract">-</button>
+            <button class="btn btn-operator" id="btn_cube">x³</button>
+            
+            <button class="btn btn-number span-2" id="btn_0">0</button>
+            <button class="btn btn-number" id="btn_decimal">.</button>
+            <button class="btn btn-operator" id="btn_add">+</button>
+            <button class="btn btn-equals" id="btn_equals">=</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        Исправленный калькулятор - все кнопки работают
+    </div>
+
+    <script>
+        let currentInput = '0';
+        let previousInput = '';
+        let operation = null;
+        let resetInput = false;
+        
+        const display = document.getElementById('display');
+        
+        function updateDisplay() {
+            display.value = currentInput;
+        }
+        
+        function appendNumber(number) {
+            if (currentInput === '0' || resetInput) {
+                currentInput = number;
+                resetInput = false;
+            } else {
+                currentInput += number;
+            }
+            updateDisplay();
+        }
+        
+        function setOperation(op) {
+            if (currentInput === '0' && previousInput === '') return;
+            
+            if (previousInput !== '') {
+                calculate();
+            }
+            
+            previousInput = currentInput;
+            operation = op;
+            resetInput = true;
+        }
+        
+        function calculate() {
+            if (previousInput === '' || operation === null) return;
+            
+            let result;
+            const prev = parseFloat(previousInput);
+            const current = parseFloat(currentInput);
+            
+            switch(operation) {
+                case '+':
+                    result = prev + current;
+                    break;
+                case '-':
+                    result = prev - current;
+                    break;
+                case '×':
+                    result = prev * current;
+                    break;
+                case '/':
+                    result = prev / current;
+                    break;
+                case 'x²':
+                    result = prev * prev;
+                    break;
+                case 'x³':
+                    result = prev * prev * prev;
+                    break;
+                case 'x!':
+                    result = factorial(prev);
+                    break;
+                case '√':
+                    result = Math.sqrt(prev);
+                    break;
+                default:
+                    return;
+            }
+            
+            currentInput = result.toString();
+            operation = null;
+            previousInput = '';
+            resetInput = true;
+            updateDisplay();
+        }
+        
+        function factorial(n) {
+            if (n < 0) return NaN;
+            if (n === 0 || n === 1) return 1;
+            let result = 1;
+            for (let i = 2; i <= n; i++) {
+                result *= i;
+            }
+            return result;
+        }
+        
+        function clearDisplay() {
+            currentInput = '0';
+            previousInput = '';
+            operation = null;
+            updateDisplay();
+        }
+        
+        function backspace() {
+            if (currentInput.length === 1 || (currentInput.length === 2 && currentInput.startsWith('-'))) {
+                currentInput = '0';
+            } else {
+                currentInput = currentInput.slice(0, -1);
+            }
+            updateDisplay();
+        }
+        
+        function changeSign() {
+            currentInput = (parseFloat(currentInput) * -1).toString();
+            updateDisplay();
+        }
+        
+        function calculatePercent() {
+            currentInput = (parseFloat(currentInput) / 100).toString();
+            updateDisplay();
+        }
+        
+        function addDecimal() {
+            if (resetInput) {
+                currentInput = '0.';
+                resetInput = false;
+            } else if (!currentInput.includes('.')) {
+                currentInput += '.';
+            }
+            updateDisplay();
+        }
+        
+        // Обработчики цифровых кнопок
+        document.getElementById('btn_0').addEventListener('click', () => appendNumber('0'));
+        document.getElementById('btn_1').addEventListener('click', () => appendNumber('1'));
+        document.getElementById('btn_2').addEventListener('click', () => appendNumber('2'));
+        document.getElementById('btn_3').addEventListener('click', () => appendNumber('3'));
+        document.getElementById('btn_4').addEventListener('click', () => appendNumber('4'));
+        document.getElementById('btn_5').addEventListener('click', () => appendNumber('5'));
+        document.getElementById('btn_6').addEventListener('click', () => appendNumber('6'));
+        document.getElementById('btn_7').addEventListener('click', () => appendNumber('7'));
+        document.getElementById('btn_8').addEventListener('click', () => appendNumber('8'));
+        document.getElementById('btn_9').addEventListener('click', () => appendNumber('9'));
+        
+        // Обработчики операций
+        document.getElementById('btn_add').addEventListener('click', () => setOperation('+'));
+        document.getElementById('btn_subtract').addEventListener('click', () => setOperation('-'));
+        document.getElementById('btn_multiply').addEventListener('click', () => setOperation('×'));
+        document.getElementById('btn_divide').addEventListener('click', () => setOperation('/'));
+        document.getElementById('btn_equals').addEventListener('click', calculate);
+        
+        // Специальные функции
+        document.getElementById('btn_clear').addEventListener('click', clearDisplay);
+        document.getElementById('btn_backspace').addEventListener('click', backspace);
+        document.getElementById('btn_sign').addEventListener('click', changeSign);
+        document.getElementById('btn_percent').addEventListener('click', calculatePercent);
+        document.getElementById('btn_decimal').addEventListener('click', addDecimal);
+        
+        // Математические функции
+        document.getElementById('btn_sqrt').addEventListener('click', () => {
+            previousInput = currentInput;
+            operation = '√';
+            calculate();
+        });
+        document.getElementById('btn_square').addEventListener('click', () => {
+            previousInput = currentInput;
+            operation = 'x²';
+            calculate();
+        });
+        document.getElementById('btn_factorial').addEventListener('click', () => {
+            previousInput = currentInput;
+            operation = 'x!';
+            calculate();
+        });
+        document.getElementById('btn_cube').addEventListener('click', () => {
+            previousInput = currentInput;
+            operation = 'x³';
+            calculate();
+        });
+    </script>
+</body>
+</html>
