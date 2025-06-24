@@ -1,0 +1,54 @@
+const express = require('express');
+const router = express.Router();
+
+let items = [
+  { id: 1, name: 'Элемент 1', category: 'Компьютер' },
+  { id: 2, name: 'Элемент 2', category: 'Компьютерная мышь' },
+  { id: 3, name: 'Элемент 3', category: 'Клавиатура' },
+  { id: 4, name: 'Элемент 4', category: 'Компьютерный стул' },
+  { id: 5, name: 'Элемент 5', category: 'Монитор' },
+  { id: 6, name: 'Элемент 6', category: 'наушники' },
+];
+
+
+router.get('/', (req, res) => {
+  const { category } = req.query;
+  const filtered = category ? items.filter(i => i.category === category) : items;
+  res.json(filtered);
+});
+
+
+router.get('/:id', (req, res) => {
+  const item = items.find(i => i.id === parseInt(req.params.id));
+  item ? res.json(item) : res.status(404).json({ error: 'Not found' });
+});
+
+
+router.post('/', (req, res) => {
+  const newItem = { id: Date.now(), ...req.body };
+  items.push(newItem);
+  res.status(201).json(newItem);
+});
+
+router.put('/:id', (req, res) => {
+  const index = items.findIndex(i => i.id === parseInt(req.params.id));
+  if (index !== -1) {
+    items[index] = { ...items[index], ...req.body };
+    res.json(items[index]);
+  } else {
+    res.status(404).json({ error: 'Not found' });
+  }
+});
+
+
+router.delete('/:id', (req, res) => {
+  const index = items.findIndex(i => i.id === parseInt(req.params.id));
+  if (index !== -1) {
+    const deleted = items.splice(index, 1);
+    res.json(deleted[0]);
+  } else {
+    res.status(404).json({ error: 'Not found' });
+  }
+});
+
+module.exports = router;
